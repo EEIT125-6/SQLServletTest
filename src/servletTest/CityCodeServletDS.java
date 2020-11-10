@@ -15,24 +15,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
-/**
- * Servlet implementation class CityCodeServletDS
- */
 @WebServlet("/servletTest/CityCodeServletDS")
 public class CityCodeServletDS extends HttpServlet {
 	/* IDE能自動協助生成的項目，並不會使用到 */
 	private static final long serialVersionUID = 1L;
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public CityCodeServletDS() {
         super();
     }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		DataSource ds0 = null;
 	    InitialContext ctxt0 = null;
@@ -48,16 +39,35 @@ public class CityCodeServletDS extends HttpServlet {
 	        // 向DataSource要Connection
 	        conn0 = ds0.getConnection();
 	        
-	        // 建立Database Access Object,負責Table的Access
-	        CityCodeDAO cityCodeDAO = new CityCodeDAO(conn0);
+	        // 建立Database Access Object,負責Table的Access，實作介面
+	        CityCodeDAO cityCodeDAO = new CityCodeJDBCDAO(conn0);
 	        
 	        // 設定request編碼
 	        request.setCharacterEncoding("UTF-8");
 	        
-	        if (request.getParameter("QUERY").equals("QUERY1")) {
-	        	doQuery(request,response,cityCodeDAO);
-	        } else if (request.getParameter("QUERY").equals("QUERY2")) {
-	            doQuery(request,response,cityCodeDAO);
+	        // 防止欄位全空，本部分可改由JavaScript直接判
+	        if(request.getParameter("paramCityCode").equals("") && request.getParameter("paramCityName").equals("")) {
+	        	showError(response, "沒有輸入任何參數，請重新執行");
+	        } else {
+	        	// 以下欄位必有填
+	        	// 執行新增
+	        	if (request.getParameter("INSERT") != null) {
+	        		
+	        	}
+	        	// 執行修改
+				if (request.getParameter("UPDATE") != null) {
+					        		
+	        	}
+	        	// 執行刪除
+	        	if (request.getParameter("DELETE") != null) {
+	        		
+	        	}
+	        	// 執行查詢
+	        	if (request.getParameter("QUERY").equals("QUERY1")) {
+		        	doSelect(request,response,cityCodeDAO, 1);
+		        } else if (request.getParameter("QUERY").equals("QUERY2")) {
+		            doSelect(request,response,cityCodeDAO, 2);
+		        }
 	        }
 	        
 	    } catch (NamingException nE) {
@@ -75,37 +85,43 @@ public class CityCodeServletDS extends HttpServlet {
 		}
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
 	
-	private void doQuery(HttpServletRequest request, 
+	// 執行新增
+	
+	// 執行修改
+	
+	// 執行刪除
+	
+	// 執行查詢
+	private void doSelect(HttpServletRequest request, 
             HttpServletResponse response,
-            CityCodeDAO cityCodeDAO) throws SQLException,IOException {
+            CityCodeDAO cityCodeDAO,
+            int selectMode) throws SQLException,IOException {
 		
 		// 讀取city_code
-	    String inputCityCode = (!request.getParameter("paramCityCode").equals("")) ? request.getParameter("paramCityCode") : "";
+	    String inputCityCode = (selectMode == 1) ? request.getParameter("paramCityCode") : "";
 	    // 讀取city_name
-	    String inputCityName = (!request.getParameter("paramCityName").equals("")) ? request.getParameter("paramCityName") : "";
+	    String inputCityName = (selectMode == 2) ? request.getParameter("paramCityName") : "";
 	    
-	    // 透過DAO元件Access Table
-	    List<CityCode> queryResult = cityCodeDAO.getCityInfo(inputCityCode, inputCityName);
+    	// 透過DAO元件Access Table
+	    List<CityCode> queryResult = cityCodeDAO.SelectCityCode(inputCityCode, inputCityName);
 	    
 	    if (queryResult.size() != 0) {
 	    	showForm(response, queryResult);
 	    } else{
-	    	if (!inputCityCode.equals("")) {
+	    	if (selectMode == 1) {
 	    		showError(response, "無法找到" + inputCityCode);
 	    	}
-	    	else if (!inputCityName.equals("")) {
+	    	else if (selectMode == 2) {
 	    		showError(response, "無法找到" + inputCityName);
 	    	}
 	    } 
 	}
 	
+	// 顯示錯誤訊息
 	private void showError(HttpServletResponse response, String message)
             throws IOException  {
 		response.setContentType("text/html;charset=UTF-8");
@@ -114,6 +130,7 @@ public class CityCodeServletDS extends HttpServlet {
 		out.close();
 	}
 	
+	// 顯示正常訊息
 	private void showForm(HttpServletResponse response, List<CityCode> queryResult)
             throws IOException  {
 		response.setContentType("text/html;charset=UTF-8");              
