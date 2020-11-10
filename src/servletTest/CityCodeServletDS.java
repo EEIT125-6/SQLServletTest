@@ -49,14 +49,22 @@ public class CityCodeServletDS extends HttpServlet {
 	        if(request.getParameter("paramCityCode").equals("") && request.getParameter("paramCityName").equals("")) {
 	        	showError(response, "沒有輸入任何參數，請重新執行");
 	        } else {
-	        	// 以下欄位必有填
+	        	// 以下欄位必有填寫的欄位
 	        	// 執行新增
 	        	if (request.getParameter("INSERT") != null) {
-	        		
+	        		if (!request.getParameter("paramCityCode").equals("") && !request.getParameter("paramCityName").equals("")) {
+	        			doInsert(request,response,cityCodeDAO);  
+	        		} else {
+	        			showError(response, "沒有輸入必要參數，請重新執行");
+	        		}
 	        	}
 	        	// 執行修改
 				if (request.getParameter("UPDATE") != null) {
-					        		
+					if (request.getParameter("paramCityCode").equals("")) {
+						showError(response, "沒有輸入必要參數，請重新執行");
+					} else {
+						doUpdate(request,response,cityCodeDAO);  
+					}		
 	        	}
 	        	// 執行刪除
 	        	if (request.getParameter("DELETE") != null) {
@@ -90,8 +98,42 @@ public class CityCodeServletDS extends HttpServlet {
 	}
 	
 	// 執行新增
+	private void doInsert(HttpServletRequest request, 
+            HttpServletResponse response,
+            CityCodeDAO cityCodeDAO) throws SQLException,IOException {
+		// 讀取city_code
+	    String inputCityCode = request.getParameter("paramCityCode");
+	    // 讀取city_name
+	    String inputCityName = request.getParameter("paramCityName");
+	    
+	    // 透過DAO元件Access Table
+	    List<CityCode> insertResult = cityCodeDAO.InsertCityCode(inputCityCode, inputCityName);
+	    
+	    if (insertResult.size() != 0) {
+	    	showForm(response, insertResult);
+	    } else{
+	    	showError(response, "無法新增" + inputCityCode + "," + inputCityName);
+	    } 
+	}
 	
 	// 執行修改
+	private void doUpdate(HttpServletRequest request, 
+            HttpServletResponse response,
+            CityCodeDAO cityCodeDAO) throws SQLException,IOException {
+		// 讀取city_code
+	    String inputCityCode = request.getParameter("paramCityCode");
+	    // 讀取city_name
+	    String inputCityName = request.getParameter("paramCityName");
+	    
+	    // 透過DAO元件Access Table
+	    List<CityCode> updateResult = cityCodeDAO.SelectCityCode(inputCityCode, inputCityName);
+	    
+	    if (updateResult.size() != 0) {
+	    	showForm(response, updateResult);
+	    } else{
+	    	showError(response, "無法修改" + inputCityCode);
+	    } 
+	}
 	
 	// 執行刪除
 	private void doDelete(HttpServletRequest request, 
@@ -126,10 +168,10 @@ public class CityCodeServletDS extends HttpServlet {
 	    String inputCityName = (selectMode == 2) ? request.getParameter("paramCityName") : "";
 	    
     	// 透過DAO元件Access Table
-	    List<CityCode> queryResult = cityCodeDAO.SelectCityCode(inputCityCode, inputCityName);
+	    List<CityCode> selectResult = cityCodeDAO.SelectCityCode(inputCityCode, inputCityName);
 	    
-	    if (queryResult.size() != 0) {
-	    	showForm(response, queryResult);
+	    if (selectResult.size() != 0) {
+	    	showForm(response, selectResult);
 	    } else{
 	    	if (selectMode == 1) {
 	    		showError(response, "無法找到" + inputCityCode);
@@ -159,13 +201,13 @@ public class CityCodeServletDS extends HttpServlet {
 	}
 	
 	// 顯示正常訊息
-	private void showForm(HttpServletResponse response, List<CityCode> queryResult)
+	private void showForm(HttpServletResponse response, List<CityCode> sqlResult)
             throws IOException  {
 		response.setContentType("text/html;charset=UTF-8");              
 		PrintWriter out = response.getWriter();
-		for (int dataIndex = 0; dataIndex < queryResult.size(); dataIndex++) {
-			out.println("City Code is:" + queryResult.get(dataIndex).getCity_code());
-			out.println("City Name is:" + queryResult.get(dataIndex).getCity_name());
+		for (int dataIndex = 0; dataIndex < sqlResult.size(); dataIndex++) {
+			out.println("City Code is:" + sqlResult.get(dataIndex).getCity_code());
+			out.println("City Name is:" + sqlResult.get(dataIndex).getCity_name());
 		}
 		out.close();
 	}
