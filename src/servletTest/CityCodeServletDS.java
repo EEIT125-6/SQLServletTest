@@ -60,7 +60,7 @@ public class CityCodeServletDS extends HttpServlet {
 	        	}
 	        	// 執行刪除
 	        	if (request.getParameter("DELETE") != null) {
-	        		
+	        		doDelete(request,response,cityCodeDAO);
 	        	}
 	        	// 執行查詢
 	        	if (request.getParameter("QUERY").equals("QUERY1")) {
@@ -94,6 +94,25 @@ public class CityCodeServletDS extends HttpServlet {
 	// 執行修改
 	
 	// 執行刪除
+	private void doDelete(HttpServletRequest request, 
+            HttpServletResponse response,
+            CityCodeDAO cityCodeDAO) throws SQLException,IOException {
+		// 讀取city_code
+	    String inputCityCode = request.getParameter("paramCityCode");
+	    
+	    if (inputCityCode.equals("")) {
+	    	showError(response, "沒有提供必需的參數");
+	    } else {
+	    	// 透過DAO元件Access Table
+	    	Boolean deleteResult = cityCodeDAO.DeleteCityCode(inputCityCode);
+	    	
+	    	if (deleteResult) {
+		    	showMessage(response, "成功刪除" + inputCityCode);
+		    } else{
+		    	showError(response, "無法刪除" + inputCityCode);
+		    }
+	    }
+	}
 	
 	// 執行查詢
 	private void doSelect(HttpServletRequest request, 
@@ -123,6 +142,15 @@ public class CityCodeServletDS extends HttpServlet {
 	
 	// 顯示錯誤訊息
 	private void showError(HttpServletResponse response, String message)
+            throws IOException  {
+		response.setContentType("text/html;charset=UTF-8");
+		PrintWriter out = response.getWriter();
+		out.println("message:"+ message);                  
+		out.close();
+	}
+	
+	// 顯示正常訊息
+	private void showMessage(HttpServletResponse response, String message)
             throws IOException  {
 		response.setContentType("text/html;charset=UTF-8");
 		PrintWriter out = response.getWriter();
