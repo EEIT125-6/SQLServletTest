@@ -25,9 +25,9 @@ public class CityCodeJDBCDAO implements CityCodeDAO{
 			/* begin transaction */ 
 			connection0.setAutoCommit(false);
 			
-			String updateCityCode = "\'" + paramCityCode + "\'";
+			String updateCityCode = paramCityCode;
 			preStmt0.setString(1, updateCityCode);
-			String updateCityName = "\'" + paramCityName + "\'";
+			String updateCityName = paramCityName;
 			preStmt0.setString(2, updateCityName);
 			
 			/* 執行更新 */

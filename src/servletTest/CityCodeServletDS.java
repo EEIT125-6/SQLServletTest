@@ -71,11 +71,9 @@ public class CityCodeServletDS extends HttpServlet {
 	        		doDelete(request,response,cityCodeDAO);
 	        	}
 	        	// 執行查詢
-	        	if (request.getParameter("QUERY").equals("QUERY1")) {
-		        	doSelect(request,response,cityCodeDAO, 1);
-		        } else if (request.getParameter("QUERY").equals("QUERY2")) {
-		            doSelect(request,response,cityCodeDAO, 2);
-		        }
+	        	if (request.getParameter("SELECT") != null) {
+		        	doSelect(request,response,cityCodeDAO);
+	        	}
 	        }
 	        
 	    } catch (NamingException nE) {
@@ -123,10 +121,10 @@ public class CityCodeServletDS extends HttpServlet {
 		// 讀取city_code
 	    String inputCityCode = request.getParameter("paramCityCode");
 	    // 讀取city_name
-	    String inputCityName = request.getParameter("paramCityName");
+	    String inputCityName = (!request.getParameter("paramCityName").equals("")) ? request.getParameter("paramCityName") : "";
 	    
 	    // 透過DAO元件Access Table
-	    List<CityCode> updateResult = cityCodeDAO.SelectCityCode(inputCityCode, inputCityName);
+	    List<CityCode> updateResult = cityCodeDAO.UpdateCityCode(inputCityCode, inputCityName);
 	    
 	    if (updateResult.size() != 0) {
 	    	showForm(response, updateResult);
@@ -159,13 +157,12 @@ public class CityCodeServletDS extends HttpServlet {
 	// 執行查詢
 	private void doSelect(HttpServletRequest request, 
             HttpServletResponse response,
-            CityCodeDAO cityCodeDAO,
-            int selectMode) throws SQLException,IOException {
+            CityCodeDAO cityCodeDAO) throws SQLException,IOException {
 		
 		// 讀取city_code
-	    String inputCityCode = (selectMode == 1) ? request.getParameter("paramCityCode") : "";
+	    String inputCityCode = (!request.getParameter("paramCityCode").equals("")) ? request.getParameter("paramCityCode") : "";
 	    // 讀取city_name
-	    String inputCityName = (selectMode == 2) ? request.getParameter("paramCityName") : "";
+	    String inputCityName = (!request.getParameter("paramCityName").equals("")) ? request.getParameter("paramCityName") : "";
 	    
     	// 透過DAO元件Access Table
 	    List<CityCode> selectResult = cityCodeDAO.SelectCityCode(inputCityCode, inputCityName);
@@ -173,10 +170,10 @@ public class CityCodeServletDS extends HttpServlet {
 	    if (selectResult.size() != 0) {
 	    	showForm(response, selectResult);
 	    } else{
-	    	if (selectMode == 1) {
+	    	if (!request.getParameter("paramCityCode").equals("")) {
 	    		showError(response, "無法找到" + inputCityCode);
 	    	}
-	    	else if (selectMode == 2) {
+	    	else if (!request.getParameter("paramCityName").equals("")) {
 	    		showError(response, "無法找到" + inputCityName);
 	    	}
 	    } 
